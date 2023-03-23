@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
+import { filter, update } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 // @mui
 import {
   Card,
@@ -22,6 +23,7 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
+
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -34,12 +36,11 @@ import USERLIST from '../_mock/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'title', label: 'ner', alignRight: false },
-  { id: 'description', label: 'tailbar', alignRight: false },
-  { id: 'categoryImg', label: 'zurag', alignRight: false },
-  { id: 'categoryRating', label: 'unelgee', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: '' },
+  { id: 'title', label: 'Нэр', alignRight: false },
+  { id: 'description', label: 'Тайлбар', alignRight: false },
+  { id: 'categoryIamge', label: 'Зураг', alignRight: false },
+  { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
+  { id: 'actions', label: ' Үйлдлүүд', alignRight: true },
 ];
 
 // ----------------------------------------------------------------------
@@ -74,6 +75,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
+  const [filteredCategory, setFilteredCategory] = useState([]);
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -140,16 +142,62 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredCategory.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  // const filteredCategory = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  // const filteredCategory = applySortFilter(category, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredCategory.length && !!filterName;
 
+  const getCategory = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/categories');
+      console.log(res.data.categories);
+      setFilteredCategory(res.data.categories);
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+
+  const deleteCat = async (id) => {
+    // console.log('id==', id);
+    try {
+      const result = await axios.delete(`http://localhost:8000/categories/${id}`);
+      getCategory();
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+
+  useEffect(() => {
+    console.log('Ajilj baina');
+    getCategory();
+  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get('http://localhost:8000/categories')
+  //     .then((res) => {
+  //       console.log('CAT IRLEE', res.data.categories);
+  //       setCategory(res.data.categories);
+  //       setFilteredCategory(res.data.categories);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Err', err);
+  //     });
+  // }, []);
+  const updateCat = async (id) => {
+    console.log('id==', id);
+    try {
+      const result = await axios.put(`http://localhost:8000/categories/${id}`);
+      getCategory();
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
   return (
     <>
       <Helmet>
-        <title> azure category </title>
+        <title> Azure category</title>
       </Helmet>
 
       <Container>
@@ -178,39 +226,70 @@ export default function UserPage() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
+                  {filteredCategory?.map((row) => {
+                    const { _id, title, description, categoryImg, categoryRating } = row;
 
+                    // selected={selectedUser}
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={_id} tabIndex={-1} role="checkbox">
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
+                          <Checkbox checked={false} onChange={(event) => handleClick(event, title)} />
                         </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
+                            <Avatar alt={title} src={categoryImg} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {title}
                             </Typography>
                           </Stack>
                         </TableCell>
 
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{description}</TableCell>
+                        <Avatar alt={title} src={categoryImg} />
+                        {/* <TableCell align="left">{categoryRating}</TableCell> */}
 
-                        <TableCell align="left">{role}</TableCell>
-
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                        <TableCell align="left" color="#000">
+                          {/* <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label> */}
+                          {categoryRating}
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
+                          <IconButton size="large" color="inherit" onClick={updateCat}>
+                            <Iconify icon={'eva:edit-fill'} />
                           </IconButton>
+                          <IconButton size="large" color="inherit" onClick={() => deleteCat(_id)}>
+                            <Iconify icon={'eva:trash-fill'} />
+                          </IconButton>
+                          {/* <Popover
+                            open={Boolean(open)}
+                            anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 140,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem>
+                              <Button onClick={() => updateCat()}>
+                                <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                                Edit
+                              </Button>
+                            </MenuItem>
+                            <Button sx={{ color: 'error.main' }} onClick={() => deleteCat(_id)}>
+                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                              Delete
+                            </Button>
+                          </Popover> */}
                         </TableCell>
                       </TableRow>
                     );
@@ -222,29 +301,28 @@ export default function UserPage() {
                   )}
                 </TableBody>
 
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
+                {/* {isNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <Paper
+                            sx={{
+                              textAlign: 'center',
+                            }}
+                          >
+                            <Typography variant="h6" paragraph>
+                              Not found
+                            </Typography>
+                            <Typography variant="body2">
+                              No results found for &nbsp;
+                              <strong>&quot;{filterName}&quot;</strong>.
+                              <br /> Try checking for typos or using complete words.
+                            </Typography>
+                          </Paper>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                )} */}
               </Table>
             </TableContainer>
           </Scrollbar>
@@ -260,35 +338,6 @@ export default function UserPage() {
           />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }
