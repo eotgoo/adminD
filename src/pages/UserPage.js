@@ -38,7 +38,7 @@ import USERLIST from '../_mock/user';
 const TABLE_HEAD = [
   { id: 'title', label: 'Нэр', alignRight: false },
   { id: 'description', label: 'Тайлбар', alignRight: false },
-  { id: 'categoryIamge', label: 'Зураг', alignRight: false },
+  { id: 'categoryImage', label: 'Зураг', alignRight: false },
   { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
   { id: 'actions', label: ' Үйлдлүүд', alignRight: true },
 ];
@@ -75,6 +75,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
+  //--------------------------------------------------------------------------------
   const [filteredCategory, setFilteredCategory] = useState([]);
   const [open, setOpen] = useState(null);
 
@@ -144,11 +145,10 @@ export default function UserPage() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredCategory.length) : 0;
 
-  // const filteredCategory = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
-  // const filteredCategory = applySortFilter(category, getComparator(order, orderBy), filterName);
-
   const isNotFound = !filteredCategory.length && !!filterName;
+  // ---------------------------------------------------------------------------------------
 
+  //-----------------------------------------------------------------------------------------
   const getCategory = async () => {
     try {
       const res = await axios.get('http://localhost:8000/categories');
@@ -158,42 +158,39 @@ export default function UserPage() {
       console.log('ERR', err);
     }
   };
-
-  const deleteCat = async (id) => {
-    // console.log('id==', id);
-    try {
-      const result = await axios.delete(`http://localhost:8000/categories/${id}`);
-      getCategory();
-    } catch (err) {
-      console.log('ERR', err);
-    }
-  };
-
   useEffect(() => {
-    console.log('Ajilj baina');
+    console.log('-----');
     getCategory();
   }, []);
-  // useEffect(() => {
-  //   axios
-  //     .get('http://localhost:8000/categories')
-  //     .then((res) => {
-  //       console.log('CAT IRLEE', res.data.categories);
-  //       setCategory(res.data.categories);
-  //       setFilteredCategory(res.data.categories);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Err', err);
-  //     });
-  // }, []);
-  const updateCat = async (id) => {
-    console.log('id==', id);
+
+  const createCat = async () => {
     try {
-      const result = await axios.put(`http://localhost:8000/categories/${id}`);
+      const result = await axios.post(`http://localhost:8000/categories`);
       getCategory();
     } catch (err) {
       console.log('ERR', err);
     }
   };
+  const deleteCat = async (_id) => {
+    try {
+      const result = await axios.delete(`http://localhost:8000/categories/${_id}`);
+      getCategory();
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+
+  const updateCat = async (_id) => {
+    console.log('id==', _id);
+    try {
+      const result = await axios.put(`http://localhost:8000/categories/${_id}`);
+      getCategory();
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+  //-------------------------------------------------------------------
+
   return (
     <>
       <Helmet>
@@ -228,8 +225,7 @@ export default function UserPage() {
                 <TableBody>
                   {filteredCategory?.map((row) => {
                     const { _id, title, description, categoryImg, categoryRating } = row;
-
-                    // selected={selectedUser}
+                    //------------------------------------------------------
                     return (
                       <TableRow hover key={_id} tabIndex={-1} role="checkbox">
                         <TableCell padding="checkbox">
@@ -238,7 +234,6 @@ export default function UserPage() {
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={title} src={categoryImg} />
                             <Typography variant="subtitle2" noWrap>
                               {title}
                             </Typography>
@@ -247,21 +242,16 @@ export default function UserPage() {
 
                         <TableCell align="left">{description}</TableCell>
                         <Avatar alt={title} src={categoryImg} />
-                        {/* <TableCell align="left">{categoryRating}</TableCell> */}
-
-                        <TableCell align="left" color="#000">
-                          {/* <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label> */}
-                          {categoryRating}
-                        </TableCell>
+                        <TableCell align="left">{categoryRating}</TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={updateCat}>
+                          <IconButton size="large" color="inherit" onClick={() => updateCat(_id)}>
                             <Iconify icon={'eva:edit-fill'} />
                           </IconButton>
                           <IconButton size="large" color="inherit" onClick={() => deleteCat(_id)}>
                             <Iconify icon={'eva:trash-fill'} />
                           </IconButton>
-                          {/* <Popover
+                          <Popover
                             open={Boolean(open)}
                             anchorEl={open}
                             onClose={handleCloseMenu}
@@ -289,7 +279,7 @@ export default function UserPage() {
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </Button>
-                          </Popover> */}
+                          </Popover>
                         </TableCell>
                       </TableRow>
                     );
@@ -301,28 +291,28 @@ export default function UserPage() {
                   )}
                 </TableBody>
 
-                {/* {isNotFound && (
-                    <TableBody>
-                      <TableRow>
-                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                          <Paper
-                            sx={{
-                              textAlign: 'center',
-                            }}
-                          >
-                            <Typography variant="h6" paragraph>
-                              Not found
-                            </Typography>
-                            <Typography variant="body2">
-                              No results found for &nbsp;
-                              <strong>&quot;{filterName}&quot;</strong>.
-                              <br /> Try checking for typos or using complete words.
-                            </Typography>
-                          </Paper>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                )} */}
+                {isNotFound && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                        <Paper
+                          sx={{
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" paragraph>
+                            Not found
+                          </Typography>
+                          <Typography variant="body2">
+                            No results found for &nbsp;
+                            <strong>&quot;{filterName}&quot;</strong>.
+                            <br /> Try checking for typos or using complete words.
+                          </Typography>
+                        </Paper>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
               </Table>
             </TableContainer>
           </Scrollbar>

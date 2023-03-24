@@ -17,7 +17,7 @@ export default function LoginForm() {
   const { setUser } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('saraa@gmail.com');
+  const [email, setEmail] = useState('tuvshuu@gmail.com');
   const [password, setPassword] = useState('pass123');
 
   const handleClick = async () => {
