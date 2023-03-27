@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 // @mui
 import { Container, Stack, Typography } from '@mui/material';
 // components
@@ -11,6 +12,33 @@ import PRODUCTS from '../_mock/products';
 
 export default function ProductsPage() {
   const [openFilter, setOpenFilter] = useState(false);
+
+  const [filteredTravel, setFilteredTravel] = useState([]);
+  const [render, setRender] = useState(false);
+
+  //-----------------------------------------------------------------------------
+  const getTravel = async () => {
+    try {
+      const result = await axios.get('http://localhost:8000/travel');
+      console.log(result.data.travel);
+      setFilteredTravel(result.data.travel);
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+
+  const deleteTravel = async (_id) => {
+    try {
+      const result = await axios.delete(`http://localhost:8000/travel/${_id}`);
+      setRender(!render);
+    } catch (err) {
+      console.log('ERR', err);
+    }
+  };
+  useEffect(() => {
+    console.log('-----');
+    getTravel();
+  }, [!render]);
 
   const handleOpenFilter = () => {
     setOpenFilter(true);
@@ -42,7 +70,7 @@ export default function ProductsPage() {
           </Stack>
         </Stack>
 
-        <ProductList products={PRODUCTS} />
+        <ProductList filteredTravel={filteredTravel} />
         <ProductCartWidget />
       </Container>
     </>

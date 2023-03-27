@@ -20,7 +20,7 @@ const style = {
   p: 4,
 };
 
-export default function BasicModal({ modalOpen, handleClose, category, getCategory, isNew }) {
+export default function BasicModal({ modalOpen, handleClose, category, setCategory, render, setRender, isNew }) {
   const [title, setTitle] = useState({});
   const [categoryImg, setCategoryImg] = useState({});
   const [description, setDescription] = useState({});
@@ -47,11 +47,12 @@ export default function BasicModal({ modalOpen, handleClose, category, getCatego
         categoryImg,
         categoryRating,
       });
-      getCategory();
-      handleClose();
+      console.log(result.data.category);
+      setRender(!render);
     } catch (err) {
       console.log('ERR', err);
     }
+    handleClose();
   };
 
   const updateCat = async () => {
@@ -64,9 +65,7 @@ export default function BasicModal({ modalOpen, handleClose, category, getCatego
         categoryRating,
       });
       console.log(result.data.category);
-      getCategory();
-
-      // setMessage(result.data.message);
+      setRender(!render);
     } catch (err) {
       console.log('ERR', err);
     }

@@ -83,6 +83,8 @@ export default function UserPage() {
   const [category, setCategory] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNew, setIsNew] = useState();
+  const [render, setRender] = useState(false);
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -93,7 +95,7 @@ export default function UserPage() {
 
   const [orderBy, setOrderBy] = useState('name');
 
-  const [filterName, setFilterName] = useState('');
+  const [filterName, setFilterName] = useState();
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -147,9 +149,11 @@ export default function UserPage() {
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
-  const handleFilterByName = (event) => {
+  const handleFilterByName = (e) => {
+    // const filteredCat = filteredCategory.filter((cat) => cat.first.toLowerCase().includes(e.target.value));
+    // setFilteredCategory(filteredCat);
+    setFilterName(e.target.value);
     setPage(0);
-    setFilterName(event.target.value);
   };
 
   //---------------------------------------------------
@@ -173,7 +177,7 @@ export default function UserPage() {
   const deleteCat = async (_id) => {
     try {
       const result = await axios.delete(`http://localhost:8000/categories/${_id}`);
-      getCategory();
+      setRender(!render);
     } catch (err) {
       console.log('ERR', err);
     }
@@ -181,7 +185,7 @@ export default function UserPage() {
   useEffect(() => {
     console.log('-----');
     getCategory();
-  }, []);
+  }, [!render]);
   //-------------------------------------------------------------------------------------------------------
 
   return (
@@ -194,9 +198,10 @@ export default function UserPage() {
           handleClose={handleClose}
           modalOpen={modalOpen}
           category={category}
-          getCategory={getCategory}
+          setCategory={setCategory}
           isNew={isNew}
-          setIsNew={setIsNew}
+          render={render}
+          setRender={setRender}
         />
       </Box>
       <Container>
