@@ -20,7 +20,7 @@ const style = {
   p: 4,
 };
 
-export default function BasicModal({ modalOpen, handleClose, category, getCategory, isNew, setIsNew }) {
+export default function BasicModal({ modalOpen, handleClose, category, getCategory, isNew }) {
   const [title, setTitle] = useState({});
   const [categoryImg, setCategoryImg] = useState({});
   const [description, setDescription] = useState({});
@@ -48,6 +48,7 @@ export default function BasicModal({ modalOpen, handleClose, category, getCatego
         categoryRating,
       });
       getCategory();
+      handleClose();
     } catch (err) {
       console.log('ERR', err);
     }
@@ -79,25 +80,47 @@ export default function BasicModal({ modalOpen, handleClose, category, getCatego
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            {isNew ? 'New' : 'Update'} Category
-          </Typography>
-          <Box
-            component="form"
-            sx={{
-              '& > :not(style)': { m: 1, width: '40ch' },
-            }}
-            noValidate
-            autoComplete="off"
-          >
-            <TextField id="standard-basic" label="Нэр" variant="standard" onChange={handleChangeTitle} />
-            <TextField id="standard-basic" label="Тайлбар" variant="standard" onChange={handleChangeDesc} />
-            <TextField id="standard-basic" label="Зураг" variant="standard" onChange={handleChangeImg} />
-            <TextField id="standard-basic" label="Үнэлгээ" variant="standard" onChange={handleChangeRating} />
+        {isNew ? (
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Update Category
+            </Typography>
+            <Box
+              component="form"
+              sx={{
+                '& > :not(style)': { m: 1, width: '40ch' },
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <TextField id="standard-basic" label="Нэр" variant="standard" onChange={handleChangeTitle} />
+              <TextField id="standard-basic" label="Тайлбар" variant="standard" onChange={handleChangeDesc} />
+              <TextField id="standard-basic" label="Зураг" variant="standard" onChange={handleChangeImg} />
+              <TextField id="standard-basic" label="Үнэлгээ" variant="standard" onChange={handleChangeRating} />
+            </Box>
+            <Button onClick={updateCat}>Save</Button>
           </Box>
-          <Button onClick={updateCat}>Save</Button>
-        </Box>
+        ) : (
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              New Category
+            </Typography>
+            <Box
+              component="form"
+              sx={{
+                '& > :not(style)': { m: 1, width: '40ch' },
+              }}
+              noValidate
+              autoComplete="off"
+            >
+              <TextField id="standard-basic" label="Нэр" variant="standard" onChange={handleChangeTitle} />
+              <TextField id="standard-basic" label="Тайлбар" variant="standard" onChange={handleChangeDesc} />
+              <TextField id="standard-basic" label="Зураг" variant="standard" onChange={handleChangeImg} />
+              <TextField id="standard-basic" label="Үнэлгээ" variant="standard" onChange={handleChangeRating} />
+            </Box>
+            <Button onClick={createCat}>Save</Button>
+          </Box>
+        )}
       </Modal>
     </div>
   );

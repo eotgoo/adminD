@@ -82,7 +82,7 @@ export default function UserPage() {
   const [filteredCategory, setFilteredCategory] = useState([]);
   const [category, setCategory] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [isNew, setIsNew] = useState(true);
+  const [isNew, setIsNew] = useState();
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -260,6 +260,7 @@ export default function UserPage() {
                             onClick={() => {
                               setModalOpen(true);
                               setCategory(row);
+                              setIsNew(true);
                             }}
                           >
                             <Iconify icon={'eva:edit-fill'} />
