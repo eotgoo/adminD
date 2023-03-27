@@ -22,12 +22,15 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  Box,
 } from '@mui/material';
 
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+
+import BasicModal from '../components/modal/catModal';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
@@ -77,6 +80,9 @@ function applySortFilter(array, comparator, query) {
 export default function UserPage() {
   //--------------------------------------------------------------------------------
   const [filteredCategory, setFilteredCategory] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isNew, setIsNew] = useState(true);
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -91,6 +97,9 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const handleClose = () => {
+    setModalOpen(false);
+  };
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
@@ -107,7 +116,7 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = filteredCategory.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -143,6 +152,8 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
+  //---------------------------------------------------
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredCategory.length) : 0;
 
   const isNotFound = !filteredCategory.length && !!filterName;
@@ -151,26 +162,14 @@ export default function UserPage() {
   //-----------------------------------------------------------------------------------------
   const getCategory = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/categories');
-      console.log(res.data.categories);
-      setFilteredCategory(res.data.categories);
+      const result = await axios.get('http://localhost:8000/categories');
+      console.log(result.data.categories);
+      setFilteredCategory(result.data.categories);
     } catch (err) {
       console.log('ERR', err);
     }
   };
-  useEffect(() => {
-    console.log('-----');
-    getCategory();
-  }, []);
 
-  const createCat = async () => {
-    try {
-      const result = await axios.post(`http://localhost:8000/categories`);
-      getCategory();
-    } catch (err) {
-      console.log('ERR', err);
-    }
-  };
   const deleteCat = async (_id) => {
     try {
       const result = await axios.delete(`http://localhost:8000/categories/${_id}`);
@@ -179,30 +178,40 @@ export default function UserPage() {
       console.log('ERR', err);
     }
   };
-
-  const updateCat = async (_id) => {
-    console.log('id==', _id);
-    try {
-      const result = await axios.put(`http://localhost:8000/categories/${_id}`);
-      getCategory();
-    } catch (err) {
-      console.log('ERR', err);
-    }
-  };
-  //-------------------------------------------------------------------
+  useEffect(() => {
+    console.log('-----');
+    getCategory();
+  }, []);
+  //-------------------------------------------------------------------------------------------------------
 
   return (
     <>
       <Helmet>
         <title> Azure category</title>
       </Helmet>
-
+      <Box>
+        <BasicModal
+          handleClose={handleClose}
+          modalOpen={modalOpen}
+          category={category}
+          getCategory={getCategory}
+          isNew={isNew}
+          setIsNew={setIsNew}
+        />
+      </Box>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Category
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={() => {
+              setModalOpen(true);
+              setIsNew(false);
+            }}
+          >
             New category
           </Button>
         </Stack>
@@ -245,7 +254,14 @@ export default function UserPage() {
                         <TableCell align="left">{categoryRating}</TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={() => updateCat(_id)}>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={() => {
+                              setModalOpen(true);
+                              setCategory(row);
+                            }}
+                          >
                             <Iconify icon={'eva:edit-fill'} />
                           </IconButton>
                           <IconButton size="large" color="inherit" onClick={() => deleteCat(_id)}>
@@ -270,14 +286,14 @@ export default function UserPage() {
                             }}
                           >
                             <MenuItem>
-                              <Button onClick={() => updateCat()}>
+                              <Button onClick={() => setModalOpen(true)}>
                                 <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                                Edit
+                                {/* Edit */}
                               </Button>
                             </MenuItem>
                             <Button sx={{ color: 'error.main' }} onClick={() => deleteCat(_id)}>
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
+                              {/* Delete */}
                             </Button>
                           </Popover>
                         </TableCell>
