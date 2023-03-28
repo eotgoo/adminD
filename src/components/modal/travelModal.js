@@ -6,7 +6,9 @@ import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import { Alert, Snackbar } from '@mui/material';
 import axios from 'axios';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+
+import { CategoryContext } from '../../Context/catContext';
 
 const style = {
   position: 'absolute',
@@ -20,11 +22,12 @@ const style = {
   p: 4,
 };
 
-export default function BasicModal({ modalOpen, handleClose, category, setCategory, render, setRender, isNew }) {
-  const createCat = async () => {
+export default function TravelModal({ handleClose, isNew, modalOpen }) {
+  const { setRender, render, travel, setTravel } = useContext(CategoryContext);
+  const createTravel = async () => {
     try {
-      const result = await axios.post(`http://localhost:8000/categories`, category);
-      console.log(result.data.category);
+      const result = await axios.post(`http://localhost:8000/travel`, travel);
+      console.log(result.data.travel);
       setRender(!render);
     } catch (err) {
       console.log('ERR', err);
@@ -32,17 +35,18 @@ export default function BasicModal({ modalOpen, handleClose, category, setCatego
     handleClose();
   };
 
-  const updateCat = async () => {
-    console.log('category._id', category._id);
+  const updateTravel = async () => {
+    console.log('travel._id', travel._id);
     try {
-      const result = await axios.put(`http://localhost:8000/categories/${category._id}`, category);
-      console.log(result.data.category);
+      const result = await axios.put(`http://localhost:8000/travel/${travel._id}`, travel);
+      console.log(result.data.travel);
       setRender(!render);
     } catch (err) {
       console.log('ERR', err);
     }
     handleClose();
   };
+
   return (
     <div>
       <Modal
@@ -54,7 +58,7 @@ export default function BasicModal({ modalOpen, handleClose, category, setCatego
         {isNew ? (
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Update Category
+              Update Travel
             </Typography>
             <Box
               component="form"
@@ -69,48 +73,68 @@ export default function BasicModal({ modalOpen, handleClose, category, setCatego
                 label="Нэр"
                 name="title"
                 variant="standard"
-                defaultValue={category.title}
+                defaultValue={travel.title}
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
-                label="Тайлбар"
-                name="description"
+                label="Дэлгэрэнгүй"
+                name="detail"
                 variant="standard"
-                defaultValue={category.description}
+                defaultValue={travel.detail}
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
                 label="Зураг"
-                name="categoryImg"
+                name="images"
                 variant="standard"
-                defaultValue={category.categoryImg}
+                defaultValue={travel.images}
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
-                label="Үнэлгээ"
-                name="categoryRating"
+                label="Үнэ"
+                name="price"
                 variant="standard"
-                defaultValue={category.categoryRating}
+                defaultValue={travel.price}
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
+                }}
+              />
+              <TextField
+                id="standard-basic"
+                label="байршил"
+                name="location"
+                variant="standard"
+                defaultValue={travel.location}
+                onChange={(e) => {
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
+                }}
+              />
+              <TextField
+                id="standard-basic"
+                label="Өдөр"
+                name="day"
+                variant="standard"
+                defaultValue={travel.day}
+                onChange={(e) => {
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
             </Box>
-            <Button onClick={updateCat}>Save</Button>
+            <Button onClick={updateTravel}>Save</Button>
           </Box>
         ) : (
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              New Category
+              New Travel
             </Typography>
             <Box
               component="form"
@@ -126,39 +150,56 @@ export default function BasicModal({ modalOpen, handleClose, category, setCatego
                 name="title"
                 variant="standard"
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
-                label="Тайлбар"
-                name="description"
+                label="Дэлгэрэнгүй"
+                name="detail"
                 variant="standard"
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
                 label="Зураг"
-                type="link"
-                name="categoryImg"
+                name="images"
                 variant="standard"
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
               <TextField
                 id="standard-basic"
-                label="Үнэлгээ"
-                name="categoryRating"
+                label="Үнэ"
+                name="price"
                 variant="standard"
                 onChange={(e) => {
-                  setCategory({ ...category, [e.target.name]: e.target.value });
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
+                }}
+              />
+              <TextField
+                id="standard-basic"
+                label="байршил"
+                name="location"
+                variant="standard"
+                onChange={(e) => {
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
+                }}
+              />
+              <TextField
+                id="standard-basic"
+                label="Өдөр"
+                name="day"
+                variant="standard"
+                onChange={(e) => {
+                  setTravel({ ...travel, [e.target.name]: e.target.value });
                 }}
               />
             </Box>
-            <Button onClick={createCat}>Save</Button>
+            <Button onClick={createTravel}>Save</Button>
           </Box>
         )}
       </Modal>

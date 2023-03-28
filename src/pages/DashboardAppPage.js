@@ -28,7 +28,7 @@ import { AuthContext } from '../Context/authContext';
 export default function DashboardAppPage() {
   const theme = useTheme();
 
-  const user = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   if (!user) {
     return <Navigate to="/login" />;
